@@ -3,7 +3,7 @@ import { encrypt, decrypt } from '@swiftyapp/aes-256-gcm'
 
 export const writeEncryptedFile = (file: string, message: string, key: string): boolean => {
   const data = encrypt(message, key)
-  writeFileSync(file, Buffer.from(data, 'hex'))
+  writeFileSync(file, Buffer.from(data, 'hex'), { encoding: 'binary' })
   return true
 }
 
