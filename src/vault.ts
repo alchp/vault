@@ -55,7 +55,7 @@ export class Vault implements VaultInterface {
     const filePath = this.filePath(path, id)
     const serialized = readEncryptedFile(filePath, key)
     const { name, createdAt, contents } = JSON.parse(serialized)
-    const items = contents.map((item: BoxProps) => new Box(item))
+    const items = contents.map((item: BoxProps) => Box.load(item))
     return new Vault({ id, name, filePath, contents: items, createdAt })
   }
 
@@ -64,7 +64,7 @@ export class Vault implements VaultInterface {
   }
 
   add(props: BoxProps, key: string) {
-    const box = new Box(props)
+    const box = Box.initialize(props)
     this.contents.push(box)
     this.save(key)
     return box

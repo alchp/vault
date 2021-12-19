@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid'
+
 interface BoxProps {
   id: string
   type: string
@@ -18,7 +20,7 @@ interface BoxProps {
 }
 
 interface BoxInterface extends BoxProps {
-  serialize: () => string
+  serialize: () => BoxProps | object
 }
 
 export class Box implements BoxInterface {
@@ -26,14 +28,28 @@ export class Box implements BoxInterface {
   type: string
   title: string
   createdAt: number
+  propsKeys: string[]
 
-  constructor({ id, createdAt }: BoxProps) {
-    this.id = id
-    this.createdAt = createdAt
+  constructor(props: BoxProps) {
+    this.propsKeys = Object.keys(props)
+    this.propsKeys.forEach((key) => (this[key] = props[key]))
+  }
+
+  static initialize({ type, title, ...rest }: BoxProps) {
+    const id = nanoid()
+    const createdAt = new Date().getTime()
+    return new Box({ id, createdAt, type, title, ...rest })
+  }
+
+  static load(props: BoxProps) {
+    return new Box(props)
   }
 
   serialize() {
-    return ''
+    return this.propsKeys.reduce((acc, key) => {
+      acc[key] = this[key]
+      return acc
+    }, {})
   }
 }
 
