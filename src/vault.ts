@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { ensureFileSync } from 'fs-extra'
 import { nanoid } from 'nanoid'
+
 import { BoxInterface, BoxProps, Box } from './box'
 import { writeEncryptedFile, readEncryptedFile } from './utils'
 
@@ -8,7 +9,6 @@ const EXTENSION = 'swftx'
 
 interface VaultProps {
   id: string
-  key: string
   name: string
   filePath: string
   contents: Array<BoxInterface>
@@ -16,21 +16,21 @@ interface VaultProps {
 }
 
 interface VaultInterface extends VaultProps {
-  save: () => boolean
+  save: (key: string) => boolean
+  add: (props: BoxProps, key: string) => BoxInterface
+  remove: (id: string, key: string) => void
   serialize: () => string
 }
 
 export class Vault implements VaultInterface {
   id: string
-  key: string
   name: string
   filePath: string
   contents: Array<BoxInterface> = []
   createdAt: number
 
-  constructor({ id, filePath, name, key, createdAt, contents }: VaultProps) {
+  constructor({ id, filePath, name, createdAt, contents }: VaultProps) {
     this.id = id
-    this.key = key
     this.name = name
     this.filePath = filePath
     this.contents = contents
@@ -45,8 +45,8 @@ export class Vault implements VaultInterface {
 
     ensureFileSync(filePath)
 
-    const vault = new Vault({ id, name, key, filePath, contents, createdAt })
-    vault.save()
+    const vault = new Vault({ id, name, filePath, contents, createdAt })
+    vault.save(key)
 
     return vault
   }
@@ -56,22 +56,33 @@ export class Vault implements VaultInterface {
     const serialized = readEncryptedFile(filePath, key)
     const { name, createdAt, contents } = JSON.parse(serialized)
     const items = contents.map((item: BoxProps) => new Box(item))
-    return new Vault({ id, key, name, filePath, contents: items, createdAt })
+    return new Vault({ id, name, filePath, contents: items, createdAt })
   }
 
   static filePath(path: string, id: string) {
     return join(path, `${id}.${EXTENSION}`)
   }
 
-  add(props: BoxProps) {
+  add(props: BoxProps, key: string) {
     const box = new Box(props)
     this.contents.push(box)
-    this.save()
+    this.save(key)
     return box
   }
 
-  save() {
-    return writeEncryptedFile(this.filePath, this.serialize(), this.key)
+  remove(id: string, key: string) {
+    this.contents = this.contents.filter((box) => box.id !== id)
+    this.save(key)
+  }
+
+  merge(data: VaultProps, key: string) {
+    // Method used to merege synced data with local data
+    // TODO: Implement merge logic
+    this.save(key)
+  }
+
+  save(key: string) {
+    return writeEncryptedFile(this.filePath, this.serialize(), key)
   }
 
   serialize() {
