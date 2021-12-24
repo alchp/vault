@@ -1,24 +1,25 @@
 import { Vault, VaultInterface } from '../src/vault'
 import { nanoid } from 'nanoid'
-import { writeFileSync, ensureFileSync, readFileSync } from 'fs-extra'
-import { encrypt, decrypt } from '@swiftyapp/aes-256-gcm'
+import fs from 'fs-extra'
+import aes from '@swiftyapp/aes-256-gcm'
 
 jest.mock('nanoid')
-jest.mock('fs-extra')
-jest.mock('@swiftyapp/aes-256-gcm')
+nanoid.mockReturnValue('123')
+
+jest.spyOn(fs, 'ensureFileSync')
+jest.spyOn(fs, 'writeFileSync')
+jest.spyOn(fs, 'readFileSync')
+jest.spyOn(aes, 'decrypt')
+
 jest.useFakeTimers().setSystemTime(new Date('2022-01-01').getTime())
 
 describe('Vault', () => {
   let vault: VaultInterface
-  const filePath = '../temp/123.swftx'
-  const encrypted =
-    '6fdfb2295e99f848524d0c90c33da348eb7750439d4db1f77b4575f99191d40099e55c374bbce1159d1077c9221241185a5de169d8d4ae9b9ce9e554acf10e4c7a28891551f5fdfda97e4c5c9b6424b7292437fd5d32fa45f48e133d0406ad2fddadbdc6fb39f8e159909367be24c6f7deb9'
+  const filePath = '.temp/123.swftx'
 
   describe('.initialize', () => {
     beforeEach(() => {
-      nanoid.mockReturnValue('123')
-      encrypt.mockReturnValue(encrypted)
-      vault = Vault.initialize('../temp', 'Personal', 'password')
+      vault = Vault.initialize('.temp', 'Personal', 'password')
     })
 
     it('creates a new vault', () => {
@@ -30,11 +31,16 @@ describe('Vault', () => {
     })
 
     it('creates vault file if it does not exist', () => {
-      expect(ensureFileSync).toHaveBeenCalledWith(filePath)
+      expect(fs.ensureFileSync).toHaveBeenCalledWith(filePath)
     })
 
     it('saves vault into a file', () => {
-      expect(writeFileSync).toHaveBeenCalledWith(filePath, Buffer.from(encrypted, 'hex'), { encoding: 'binary' })
+      expect(fs.writeFileSync).toHaveBeenCalled()
+      const call = fs.writeFileSync.mock.calls[0]
+
+      expect(call[0]).toEqual(filePath)
+      expect(call[1] instanceof Buffer).toBeTruthy()
+      expect(call[2]).toEqual({ encoding: 'binary' })
     })
 
     it('serializes to a json string', () => {
@@ -44,10 +50,7 @@ describe('Vault', () => {
 
   describe('.load', () => {
     beforeEach(() => {
-      nanoid.mockReturnValue('123')
-      readFileSync.mockReturnValue(encrypted)
-      decrypt.mockReturnValue('{"id":"123","name":"Personal","contents":[],"createdAt":1640995200000}')
-      vault = Vault.load('../temp', '123', 'password')
+      vault = Vault.load('./.temp', '123', 'password')
     })
 
     it('loads a vault', () => {
@@ -59,15 +62,67 @@ describe('Vault', () => {
     })
 
     it('loads vault from a file', () => {
-      expect(readFileSync).toHaveBeenCalledWith(filePath)
+      expect(fs.readFileSync).toHaveBeenCalledWith(filePath)
     })
 
     it('decrypts vault from a file', () => {
-      expect(decrypt).toHaveBeenCalledWith(encrypted, 'password')
+      expect(aes.decrypt).toHaveBeenCalled()
+      const call = aes.decrypt.mock.calls[0]
+
+      expect(call[0]).toMatch(/^[0-9a-f]+$/)
+      expect(call[1]).toEqual('password')
     })
 
     it('serializes to a json string', () => {
       expect(vault.serialize()).toEqual('{"id":"123","name":"Personal","contents":[],"createdAt":1640995200000}')
     })
   })
+
+  describe('#add', () => {
+    beforeEach(() => {
+      vault = Vault.initialize('.temp', 'Personal', 'password')
+    })
+
+    it('adds a box to the vault', () => {
+      vault.add({ type: 'note', title: 'Secret' }, 'password')
+      const box = vault.contents[0]
+
+      expect(vault.contents.length).toEqual(1)
+      expect(box.title).toEqual('Secret')
+      expect(box.type).toEqual('note')
+      expect(box.createdAt).toEqual(1640995200000)
+      expect(box.updatedAt).toEqual(1640995200000)
+    })
+  })
+
+  describe('#update', () => {
+    beforeEach(() => {
+      vault = Vault.load('.temp', '123', 'password')
+      jest.useFakeTimers().setSystemTime(new Date('2022-01-02').getTime())
+    })
+
+    it('updates a box in the vault', () => {
+      const updatedBox = vault.update('123', { title: 'Updated' }, 'password')
+
+      expect(vault.contents.length).toEqual(1)
+      expect(updatedBox.title).toEqual('Updated')
+      expect(updatedBox.type).toEqual('note')
+      expect(updatedBox.createdAt).toEqual(1640995200000)
+      expect(updatedBox.updatedAt).toEqual(1641081600000)
+    })
+  })
+
+  describe('#remove', () => {
+    beforeEach(() => {
+      vault = Vault.load('.temp', '123', 'password')
+    })
+
+    it('removes a box from the vault', () => {
+      vault.remove('123', 'password')
+
+      expect(vault.contents.length).toEqual(0)
+    })
+  })
+
+  describe('#merge', () => {})
 })
