@@ -15,7 +15,7 @@ interface VaultProps {
   createdAt: number
 }
 
-interface VaultInterface extends VaultProps {
+export interface VaultInterface extends VaultProps {
   save: (key: string) => boolean
   add: (props: BoxProps, key: string) => BoxInterface
   remove: (id: string, key: string) => void
