@@ -4,14 +4,18 @@ import fs from 'fs-extra'
 import aes from '@swiftyapp/aes-256-gcm'
 
 jest.mock('nanoid')
-nanoid.mockReturnValue('123')
-
 jest.spyOn(fs, 'ensureFileSync')
 jest.spyOn(fs, 'writeFileSync')
 jest.spyOn(fs, 'readFileSync')
 jest.spyOn(aes, 'decrypt')
-
 jest.useFakeTimers().setSystemTime(new Date('2022-01-01').getTime())
+
+const nanoidMock = nanoid as jest.Mock
+const writeFileSyncMock = fs.writeFileSync as jest.Mock
+const ensureFileSyncMock = fs.ensureFileSync as jest.Mock
+const readFileSyncMock = fs.readFileSync as jest.Mock
+
+nanoidMock.mockReturnValue('123')
 
 describe('Vault', () => {
   let vault: VaultInterface
@@ -33,12 +37,12 @@ describe('Vault', () => {
     })
 
     it('creates vault file if it does not exist', () => {
-      expect(fs.ensureFileSync).toHaveBeenCalledWith(filePath)
+      expect(ensureFileSyncMock).toHaveBeenCalledWith(filePath)
     })
 
     it('saves vault into a file', () => {
-      expect(fs.writeFileSync).toHaveBeenCalled()
-      const call = fs.writeFileSync.mock.calls[0]
+      expect(writeFileSyncMock).toHaveBeenCalled()
+      const call = writeFileSyncMock.mock.calls[0]
 
       expect(call[0]).toEqual(filePath)
       expect(call[1] instanceof Buffer).toBeTruthy()
@@ -67,7 +71,7 @@ describe('Vault', () => {
     })
 
     it('loads vault from a file', () => {
-      expect(fs.readFileSync).toHaveBeenCalledWith(filePath)
+      expect(readFileSyncMock).toHaveBeenCalledWith(filePath)
     })
 
     it('decrypts vault from a file', () => {
