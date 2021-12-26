@@ -35,19 +35,19 @@ export class Vault implements VaultInterface {
   name: string
   filePath: string
   contents: Array<BoxInterface> = []
+  deleted: Array<string> = []
   createdAt: number
   updatedAt: number
-  deleted: Array<string> = []
 
-  constructor({ id, filePath, name, createdAt, updatedAt, contents, deleted, tag }: VaultProps) {
+  constructor({ id, tag, name, filePath, contents, deleted, createdAt, updatedAt }: VaultProps) {
     this.id = id
     this.tag = tag
     this.name = name
     this.filePath = filePath
     this.contents = contents.map((item: BoxProps) => Box.load(item))
+    this.deleted = deleted
     this.createdAt = createdAt
     this.updatedAt = updatedAt
-    this.deleted = deleted
   }
 
   static initialize(path: string, name: string, key: string): Vault {
@@ -62,7 +62,7 @@ export class Vault implements VaultInterface {
 
     const tag = this.generateTag(id, key)
 
-    const vault = new Vault({ id, name, filePath, contents, createdAt, updatedAt, deleted, tag })
+    const vault = new Vault({ id, tag, name, filePath, contents, deleted, createdAt, updatedAt })
     vault.save(key)
 
     return vault

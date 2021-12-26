@@ -7,6 +7,7 @@ jest.mock('nanoid')
 jest.spyOn(fs, 'ensureFileSync')
 jest.spyOn(fs, 'writeFileSync')
 jest.spyOn(fs, 'readFileSync')
+jest.spyOn(aes, 'encrypt')
 jest.spyOn(aes, 'decrypt')
 jest.useFakeTimers().setSystemTime(new Date('2022-01-01').getTime())
 
@@ -40,13 +41,15 @@ describe('Vault', () => {
       expect(ensureFileSyncMock).toHaveBeenCalledWith(filePath)
     })
 
-    it('saves vault into a file', () => {
-      expect(writeFileSyncMock).toHaveBeenCalled()
-      const call = writeFileSyncMock.mock.calls[0]
+    it('encrypts data before saving to file', () => {
+      expect(aes.encrypt).toHaveBeenCalledWith(
+        '{"id":"123","name":"Personal","contents":[],"deleted":[],"createdAt":1640995200000,"updatedAt":1640995200000}',
+        'password'
+      )
+    })
 
-      expect(call[0]).toEqual(filePath)
-      expect(call[1] instanceof Buffer).toBeTruthy()
-      expect(call[2]).toEqual({ encoding: 'binary' })
+    it('saves vault into a file', () => {
+      expect(writeFileSyncMock).toHaveBeenCalledWith(filePath, expect.any(Buffer), { encoding: 'binary' })
     })
 
     it('serializes to a json string', () => {
