@@ -1,0 +1,61 @@
+{
+  "id": "123",
+  "name": "General",
+  "filePath": null,
+  "tag": "64e56c8a652694f45d9f336cd58f459cb90e111b1312e02b971bd1fd599ce19bfaf430f699925e7dc9f8839b6c1163",
+  "createdAt": 1641081600000,
+  "updatedAt": 1641081600001,
+  "contents": [
+    {
+      "id": "BOX_1",
+      "title": "Facebook",
+      "type": "login",
+      "url": "https://www.facebook.com/",
+      "username": "john.doe",
+      "password": "facebook_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_2",
+      "title": "Github",
+      "type": "login",
+      "url": "https://github.com/",
+      "username": "john.doe",
+      "password": "github_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_3",
+      "title": "Google Updated",
+      "type": "login",
+      "url": "https://www.google.com/",
+      "username": "john.doe",
+      "password": "google_password_updated",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081720000
+    },
+    {
+      "id": "BOX_5",
+      "title": "iCloud",
+      "type": "login",
+      "url": "https://icloud.com/",
+      "username": "john.doe",
+      "password": "icloud_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_6",
+      "title": "Microsoft",
+      "type": "login",
+      "url": "https://microsoft.com/",
+      "username": "john.doe",
+      "password": "microsoft_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    }
+  ],
+  "deleted": ["BOX_7"]
+}

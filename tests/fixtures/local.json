@@ -1,0 +1,61 @@
+{
+  "id": "123",
+  "name": "General",
+  "filePath": ".temp/123.swftx",
+  "tag": "694bd7a891ba1d20ba8915105ce69efad84e3609aac43a0f5d21ac2e7e5883548d467b3c1c3a11c87cdaf12beb78fa",
+  "createdAt": 1641081600000,
+  "updatedAt": 1641081600001,
+  "contents": [
+    {
+      "id": "BOX_1",
+      "title": "Facebook",
+      "type": "login",
+      "url": "https://www.facebook.com/",
+      "username": "john.doe",
+      "password": "facebook_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_2",
+      "title": "Github Updated",
+      "type": "login",
+      "url": "https://github.com/",
+      "username": "john.doe",
+      "password": "github_password_updated",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081660000
+    },
+    {
+      "id": "BOX_3",
+      "title": "Google",
+      "type": "login",
+      "url": "https://www.google.com/",
+      "username": "john.doe",
+      "password": "google_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_4",
+      "title": "Netflix",
+      "type": "login",
+      "url": "https://www.netflix.com/",
+      "username": "john.doe",
+      "password": "netflix_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    },
+    {
+      "id": "BOX_7",
+      "title": "Apple",
+      "type": "login",
+      "url": "https://apple.com/",
+      "username": "john.doe",
+      "password": "apple_password",
+      "createdAt": 1641081600000,
+      "updatedAt": 1641081600000
+    }
+  ],
+  "deleted": ["BOX_6"]
+}

@@ -27,7 +27,9 @@ describe('Vault', () => {
       expect(vault.name).toEqual('Personal')
       expect(vault.filePath).toEqual(filePath)
       expect(vault.contents).toEqual([])
+      expect(vault.deleted).toEqual([])
       expect(vault.createdAt).toEqual(1640995200000)
+      expect(vault.updatedAt).toEqual(1640995200000)
     })
 
     it('creates vault file if it does not exist', () => {
@@ -44,13 +46,15 @@ describe('Vault', () => {
     })
 
     it('serializes to a json string', () => {
-      expect(vault.serialize()).toEqual('{"id":"123","name":"Personal","contents":[],"createdAt":1640995200000}')
+      expect(vault.serialize()).toEqual(
+        '{"id":"123","name":"Personal","contents":[],"deleted":[],"createdAt":1640995200000,"updatedAt":1640995200000}'
+      )
     })
   })
 
   describe('.load', () => {
     beforeEach(() => {
-      vault = Vault.load('./.temp', '123', 'password')
+      vault = Vault.load('.temp', '123', 'password')
     })
 
     it('loads a vault', () => {
@@ -59,6 +63,7 @@ describe('Vault', () => {
       expect(vault.filePath).toEqual(filePath)
       expect(vault.contents).toEqual([])
       expect(vault.createdAt).toEqual(1640995200000)
+      expect(vault.updatedAt).toEqual(1640995200000)
     })
 
     it('loads vault from a file', () => {
@@ -74,7 +79,9 @@ describe('Vault', () => {
     })
 
     it('serializes to a json string', () => {
-      expect(vault.serialize()).toEqual('{"id":"123","name":"Personal","contents":[],"createdAt":1640995200000}')
+      expect(vault.serialize()).toEqual(
+        '{"id":"123","name":"Personal","contents":[],"deleted":[],"createdAt":1640995200000,"updatedAt":1640995200000}'
+      )
     })
   })
 
@@ -124,5 +131,75 @@ describe('Vault', () => {
     })
   })
 
-  describe('#merge', () => {})
+  describe('#merge', () => {
+    let localVault: Vault, remoteVault: Vault
+
+    beforeEach(() => {
+      localVault = new Vault(JSON.parse(fs.readFileSync('./tests/fixtures/local.json').toString()))
+      remoteVault = JSON.parse(fs.readFileSync('./tests/fixtures/remote.json').toString())
+    })
+
+    describe('more recent update', () => {
+      it('merges contents of vaults', () => {
+        localVault.merge(remoteVault, 'password')
+
+        expect(localVault.contents.length).toEqual(5)
+        expect(localVault.contents[0]).toMatchObject({
+          id: 'BOX_1',
+          type: 'login',
+          title: 'Facebook',
+          url: 'https://www.facebook.com/',
+          username: 'john.doe',
+          password: 'facebook_password',
+          createdAt: 1641081600000,
+          updatedAt: 1641081600000
+        })
+        expect(localVault.contents[1]).toMatchObject({
+          id: 'BOX_2',
+          type: 'login',
+          title: 'Github Updated',
+          url: 'https://github.com/',
+          username: 'john.doe',
+          password: 'github_password_updated',
+          createdAt: 1641081600000,
+          updatedAt: 1641081660000
+        })
+        expect(localVault.contents[2]).toMatchObject({
+          id: 'BOX_3',
+          type: 'login',
+          title: 'Google Updated',
+          url: 'https://www.google.com/',
+          username: 'john.doe',
+          password: 'google_password_updated',
+          createdAt: 1641081600000,
+          updatedAt: 1641081720000
+        })
+        expect(localVault.contents[3]).toMatchObject({
+          id: 'BOX_4',
+          type: 'login',
+          title: 'Netflix',
+          url: 'https://www.netflix.com/',
+          username: 'john.doe',
+          password: 'netflix_password',
+          createdAt: 1641081600000,
+          updatedAt: 1641081600000
+        })
+        expect(localVault.contents[4]).toMatchObject({
+          id: 'BOX_5',
+          type: 'login',
+          title: 'iCloud',
+          url: 'https://icloud.com/',
+          username: 'john.doe',
+          password: 'icloud_password',
+          createdAt: 1641081600000,
+          updatedAt: 1641081600000
+        })
+      })
+
+      it('remembers deleted items', () => {
+        localVault.merge(remoteVault, 'password')
+        expect(localVault.deleted).toEqual(['BOX_6', 'BOX_7'])
+      })
+    })
+  })
 })
