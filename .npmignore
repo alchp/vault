@@ -1,4 +1,9 @@
+.babelrc
 .github
 .nvmrc
 .eslintrc*
-.prettierrc*  
+.prettierrc*
+tsconfig.json
+jest.config.ts
+webpack.config.js
+tests/
