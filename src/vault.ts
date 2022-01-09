@@ -6,8 +6,7 @@ import { encrypt, decrypt } from '@swiftyapp/aes-256-gcm'
 
 import { BoxInterface, BoxProps, Box } from './box'
 import { writeEncryptedFile, readEncryptedFile } from './utils'
-
-const EXTENSION = 'swftx'
+import { EXTENSION, ID_LENGTH } from './constants'
 
 interface VaultProps {
   id: string
@@ -51,7 +50,7 @@ export class Vault implements VaultInterface {
   }
 
   static initialize(path: string, name: string, key: string): Vault {
-    const id = nanoid()
+    const id = nanoid(ID_LENGTH)
     const filePath = this.filePath(path, id)
     const createdAt = new Date().getTime()
     const updatedAt = createdAt
@@ -84,6 +83,10 @@ export class Vault implements VaultInterface {
 
   static generateTag(id: string, key: string): string {
     return encrypt(`${id}.${new Date().getTime()}`, key)
+  }
+
+  authenticate(key: string): boolean {
+    return this.authenticateKey(key)
   }
 
   add(props: BoxProps, key: string): BoxInterface {

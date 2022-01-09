@@ -1,9 +1,13 @@
 .babelrc
 .github
+.env
 .nvmrc
 .eslintrc*
 .prettierrc*
+.temp/
+dist/
 tsconfig.json
 jest.config.ts
 webpack.config.js
+yarn-error.log
 tests/

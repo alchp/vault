@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { ID_LENGTH } from './constants'
 
 export interface BoxProps {
   id?: string
@@ -39,7 +40,7 @@ export class Box implements BoxInterface {
   }
 
   static initialize({ type, title, ...rest }: BoxProps) {
-    const id = nanoid()
+    const id = nanoid(ID_LENGTH)
     const createdAt = new Date().getTime()
     const updatedAt = createdAt
     return new Box({ id, createdAt, updatedAt, type, title, ...rest })
